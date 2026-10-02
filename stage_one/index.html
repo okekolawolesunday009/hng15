@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f7f2">
+  <title>Daymark — make room for what matters</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f7f7f2;
+      --white: #fff;
+      --ink: #202920;
+      --muted: #858a80;
+      --line: #e9eae2;
+      --green: #477456;
+      --green-dark: #345c41;
+      --green-pale: #e9f0e8;
+      --orange: #e27c55;
+      --yellow: #f2cc70;
+      --shadow: 0 12px 36px rgba(39, 49, 35, .06);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "DM Sans", sans-serif;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    .app-shell { min-height: 100vh; display: grid; grid-template-columns: 238px minmax(0, 1fr); }
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 30px 20px 22px;
+      background: #f0f1e9;
+      border-right: 1px solid #e7e9df;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; margin: 0 0 40px 4px; font: 800 19px "Manrope", sans-serif; letter-spacing: 0; }
+    .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; color: #fff; background: var(--green); border-radius: 9px; }
+    .brand-mark svg { width: 17px; height: 17px; }
+    .side-label { margin: 0 0 10px 10px; color: #999d91; font-size: 10px; font-weight: 700; letter-spacing: 1.25px; text-transform: uppercase; }
+    .nav-list { display: grid; gap: 4px; }
+    .nav-item, .project-item {
+      width: 100%; min-height: 40px; display: flex; align-items: center; gap: 11px;
+      padding: 0 10px; border: 0; border-radius: 7px; background: transparent;
+      color: #666e63; text-align: left; cursor: pointer; transition: background .18s, color .18s;
+    }
+    .nav-item:hover, .project-item:hover { background: rgba(255,255,255,.65); color: var(--ink); }
+    .nav-item.active { background: #fff; color: var(--green-dark); font-weight: 700; box-shadow: 0 2px 9px rgba(39,49,35,.045); }
+    .nav-item > svg, .project-item > svg { width: 17px; height: 17px; stroke-width: 1.8; }
+    .nav-count { margin-left: auto; color: #a0a397; font-size: 12px; }
+    .nav-item.active .nav-count { color: var(--green); }
+    .side-section { margin-top: 33px; }
+    .project-dot { width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; background: #e8a47f; }
+    .project-item:nth-child(3) .project-dot { background: #85a4c4; }
+    .project-item:nth-child(4) .project-dot { background: #d1b05d; }
+    .project-item.selected { color: var(--ink); font-weight: 600; }
+    .project-item .nav-count { margin-left: auto; }
+    .sidebar-bottom { margin-top: auto; }
+    .quote-card { padding: 15px 14px; border: 1px solid #e4e7dc; border-radius: 8px; background: rgba(255,255,255,.52); }
+    .quote-card p { margin: 0; color: #687365; font: 500 12px/1.65 "Manrope", sans-serif; }
+    .quote-card span { display: block; margin-top: 9px; color: #969b8d; font-size: 10px; }
+    .account { display: flex; align-items: center; gap: 10px; margin: 19px 3px 0; }
+    .avatar { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: #e8c4a6; color: #674837; font-size: 11px; font-weight: 700; }
+    .account-name { font-size: 12px; font-weight: 700; }
+    .account-plan { margin-top: 2px; color: var(--muted); font-size: 10px; }
+
+    main { min-width: 0; padding: 31px clamp(24px, 5vw, 72px) 50px; }
+    .topbar { max-width: 1230px; display: flex; align-items: center; justify-content: space-between; margin: 0 auto 43px; }
+    .date-label { color: #82877d; font-size: 12px; font-weight: 600; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .icon-button { width: 37px; height: 37px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 7px; background: #fff; cursor: pointer; }
+    .icon-button:hover { border-color: #cbd7c9; background: var(--green-pale); }
+    .icon-button svg { width: 16px; height: 16px; color: #656e62; }
+    .search-wrap { position: relative; }
+    .search-wrap svg { position: absolute; top: 11px; left: 11px; width: 15px; height: 15px; color: #92978d; pointer-events: none; }
+    .search-input { width: 175px; height: 37px; padding: 0 11px 0 34px; border: 1px solid var(--line); border-radius: 7px; outline: 0; background: #fff; color: var(--ink); font-size: 12px; }
+    .search-input:focus, .task-input:focus, .field-select:focus { border-color: #99b49b; box-shadow: 0 0 0 3px rgba(71,116,86,.1); }
+
+    .content-grid { max-width: 1230px; display: grid; grid-template-columns: minmax(0, 1fr) 274px; gap: clamp(28px, 5vw, 74px); margin: 0 auto; }
+    .main-column { min-width: 0; }
+    .greeting { margin: 0; font: 700 clamp(27px, 3vw, 36px)/1.2 "Manrope", sans-serif; letter-spacing: 0; }
+    .greeting-sub { margin: 8px 0 28px; color: #858a80; font-size: 13px; }
+    .progress-line { display: flex; align-items: center; gap: 12px; margin-bottom: 33px; }
+    .progress-track { width: 130px; height: 5px; overflow: hidden; border-radius: 5px; background: #e7e9e1; }
+    .progress-fill { width: 0; height: 100%; border-radius: inherit; background: var(--green); transition: width .25s ease; }
+    .progress-copy { color: #81877c; font-size: 11px; }
+    .list-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 13px; }
+    .list-title { margin: 0; font: 700 17px "Manrope", sans-serif; }
+    .sort-label { color: #92978d; font-size: 11px; }
+    .sort-label svg { width: 13px; height: 13px; margin-right: 4px; vertical-align: -3px; }
+    .task-list { border-top: 1px solid var(--line); }
+    .task-row {
+      min-height: 66px; display: grid; grid-template-columns: 21px minmax(0, 1fr) auto 28px; align-items: center;
+      gap: 12px; border-bottom: 1px solid var(--line); animation: arrive .25s ease both;
+    }
+    @keyframes arrive { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .check-button { width: 19px; height: 19px; display: grid; place-items: center; padding: 0; border: 1.5px solid #c8cec3; border-radius: 50%; background: transparent; cursor: pointer; transition: all .18s; }
+    .check-button:hover { border-color: var(--green); background: var(--green-pale); }
+    .check-button svg { width: 12px; height: 12px; color: #fff; opacity: 0; }
+    .task-row.completed .check-button { border-color: var(--green); background: var(--green); }
+    .task-row.completed .check-button svg { opacity: 1; }
+    .task-copy { min-width: 0; }
+    .task-name { overflow: hidden; color: #343b33; font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+    .task-row.completed .task-name { color: #9a9f95; text-decoration: line-through; }
+    .task-meta { display: flex; align-items: center; gap: 9px; margin-top: 5px; color: #999d93; font-size: 10px; }
+    .category { display: inline-flex; align-items: center; gap: 5px; }
+    .category::before { width: 6px; height: 6px; border-radius: 50%; background: var(--category-color, #e8a47f); content: ""; }
+    .category[data-project="Personal"] { --category-color: #85a4c4; }
+    .category[data-project="Ideas"] { --category-color: #d1b05d; }
+    .due-chip { color: #888e82; }
+    .due-chip.overdue { color: #c6654c; }
+    .priority { padding: 4px 7px; border-radius: 4px; color: #a27b35; background: #f8f0db; font-size: 10px; white-space: nowrap; }
+    .priority.high { color: #b8664b; background: #f9e9e2; }
+    .priority.low { color: #687e69; background: #e9f0e8; }
+    .delete-button { width: 28px; height: 28px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 5px; background: transparent; color: #a3a69e; cursor: pointer; opacity: 0; transition: all .15s; }
+    .task-row:hover .delete-button, .delete-button:focus-visible { opacity: 1; }
+    .delete-button:hover { background: #f8eae5; color: #b8664b; }
+    .delete-button svg { width: 14px; height: 14px; }
+    .empty-state { padding: 38px 14px; color: #8a9085; text-align: center; font-size: 13px; }
+    .empty-state svg { display: block; width: 25px; height: 25px; margin: 0 auto 10px; color: #a3b5a1; }
+
+    .add-form { margin-top: 20px; padding: 14px; border: 1px solid #e4e7df; border-radius: 8px; background: rgba(255,255,255,.72); transition: border-color .2s, box-shadow .2s; }
+    .add-form:focus-within { border-color: #b9cbb7; box-shadow: 0 4px 16px rgba(39,49,35,.04); }
+    .add-top { display: flex; align-items: center; gap: 10px; }
+    .add-symbol { width: 20px; height: 20px; display: grid; place-items: center; color: var(--green); }
+    .add-symbol svg { width: 17px; height: 17px; }
+    .task-input { width: 100%; min-width: 0; padding: 5px 0; border: 1px solid transparent; border-radius: 4px; outline: 0; background: transparent; font-size: 13px; }
+    .task-input::placeholder { color: #a0a499; }
+    .form-bottom { display: flex; align-items: center; gap: 8px; margin: 12px 0 0 30px; }
+    .field-select { max-width: 110px; height: 29px; padding: 0 7px; border: 1px solid #e8e9e2; border-radius: 5px; outline: 0; background: #fff; color: #72796d; font-size: 10px; }
+    .date-input { width: 112px; }
+    .add-submit { height: 30px; display: flex; align-items: center; gap: 5px; margin-left: auto; padding: 0 11px; border: 0; border-radius: 5px; background: var(--green); color: #fff; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .add-submit:hover { background: var(--green-dark); }
+    .add-submit svg { width: 13px; height: 13px; }
+
+    .right-column { padding-top: 5px; }
+    .day-card { overflow: hidden; border: 1px solid #e7e9e0; border-radius: 8px; background: #fff; box-shadow: var(--shadow); }
+    .day-photo { height: 112px; position: relative; background: #b0be9c url("https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=700&q=82") center 48% / cover; }
+    .day-photo::after { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(29,42,28,.36), transparent 72%); content: ""; }
+    .day-photo-label { position: absolute; z-index: 1; bottom: 13px; left: 16px; color: #fff; font: 700 16px "Manrope", sans-serif; }
+    .day-content { padding: 16px; }
+    .day-card-title { margin: 0 0 14px; font: 700 13px "Manrope", sans-serif; }
+    .day-stat { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-top: 1px solid #f0f0eb; color: #777e72; font-size: 11px; }
+    .day-stat strong { color: var(--ink); font-size: 12px; }
+    .focus-card { position: relative; margin-top: 19px; padding: 17px 17px 16px; overflow: hidden; border-radius: 8px; background: #e6eee3; }
+    .focus-card::after { position: absolute; right: -22px; bottom: -34px; width: 95px; height: 95px; border: 1px solid rgba(71,116,86,.17); border-radius: 50%; box-shadow: 0 0 0 12px rgba(71,116,86,.055), 0 0 0 25px rgba(71,116,86,.035); content: ""; }
+    .focus-label { display: flex; align-items: center; gap: 7px; color: #65836a; font-size: 10px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; }
+    .focus-label svg { width: 14px; height: 14px; }
+    .focus-title { max-width: 195px; margin: 12px 0 5px; font: 700 15px/1.4 "Manrope", sans-serif; }
+    .focus-note { margin: 0; color: #788776; font-size: 11px; line-height: 1.6; }
+    .upcoming-title { margin: 27px 0 11px; font: 700 13px "Manrope", sans-serif; }
+    .upcoming-item { display: flex; align-items: flex-start; gap: 10px; padding: 11px 0; border-top: 1px solid var(--line); }
+    .upcoming-date { width: 32px; flex: 0 0 auto; padding-top: 1px; color: var(--green); font-size: 10px; font-weight: 700; line-height: 1.4; text-align: center; text-transform: uppercase; }
+    .upcoming-text { color: #555d51; font-size: 11px; line-height: 1.5; }
+    .upcoming-text span { display: block; margin-top: 3px; color: #999e93; font-size: 10px; }
+    .mobile-brand { display: none; }
+
+    @media (max-width: 1050px) {
+      .app-shell { grid-template-columns: 205px minmax(0, 1fr); }
+      .sidebar { padding-right: 15px; padding-left: 15px; }
+      main { padding-right: 30px; padding-left: 30px; }
+      .content-grid { grid-template-columns: minmax(0, 1fr) 235px; gap: 30px; }
+    }
+    @media (max-width: 760px) {
+      .app-shell { display: block; padding-bottom: 66px; }
+      .sidebar { position: fixed; z-index: 5; top: auto; right: 0; bottom: 0; left: 0; width: 100%; height: 62px; padding: 5px 12px max(5px, env(safe-area-inset-bottom)); border-top: 1px solid #e1e5db; border-right: 0; background: rgba(247,247,242,.97); backdrop-filter: blur(12px); }
+      .brand, .side-label, .side-section, .sidebar-bottom { display: none; }
+      .nav-list { height: 100%; grid-template-columns: repeat(4, 1fr); gap: 3px; }
+      .nav-item { min-height: 48px; flex-direction: column; justify-content: center; gap: 3px; padding: 3px; border-radius: 6px; font-size: 9px; }
+      .nav-item > svg { width: 17px; height: 17px; }
+      .nav-count { display: none; }
+      main { padding: 18px 20px 38px; }
+      .topbar { margin-bottom: 31px; }
+      .top-actions { gap: 7px; }
+      .search-input { width: min(35vw, 160px); }
+      .content-grid { display: block; }
+      .right-column { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 14px; margin-top: 34px; }
+      .day-card { grid-row: span 2; }
+      .focus-card { margin-top: 0; }
+      .upcoming-title { grid-column: 1 / -1; margin: 12px 0 -4px; }
+      .upcoming-item { grid-column: 1 / -1; }
+    }
+    @media (max-width: 480px) {
+      main { padding-right: 16px; padding-left: 16px; }
+      .date-label { max-width: 145px; font-size: 10px; }
+      .icon-button { width: 34px; height: 34px; }
+      .search-input { width: 112px; height: 34px; font-size: 11px; }
+      .search-wrap svg { top: 10px; }
+      .greeting { font-size: 28px; }
+      .task-row { grid-template-columns: 20px minmax(0, 1fr) auto 25px; gap: 8px; }
+      .task-name { font-size: 12px; }
+      .priority { padding: 4px 5px; font-size: 9px; }
+      .delete-button { opacity: .6; }
+      .form-bottom { flex-wrap: wrap; margin-left: 28px; }
+      .field-select { max-width: 94px; }
+      .date-input { width: 105px; }
+      .right-column { grid-template-columns: 1fr 1fr; }
+      .day-photo { height: 92px; }
+      .day-content { padding: 12px; }
+      .focus-card { padding: 13px; }
+      .focus-title { font-size: 13px; }
+      .focus-note { font-size: 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Main navigation">
+      <div class="brand"><span class="brand-mark"><i data-lucide="sprout"></i></span>daymark</div>
+      <div class="side-label">Workspace</div>
+      <nav class="nav-list" id="main-nav">
+        <button class="nav-item active" data-filter="today"><i data-lucide="sun"></i><span>Today</span><span class="nav-count" id="today-count"></span></button>
+        <button class="nav-item" data-filter="upcoming"><i data-lucide="calendar-days"></i><span>Upcoming</span><span class="nav-count" id="upcoming-count"></span></button>
+        <button class="nav-item" data-filter="all"><i data-lucide="inbox"></i><span>All tasks</span><span class="nav-count" id="all-count"></span></button>
+        <button class="nav-item" data-filter="completed"><i data-lucide="circle-check"></i><span>Completed</span></button>
+      </nav>
+      <div class="side-section">
+        <div class="side-label">Projects</div>
+        <div class="nav-list">
+          <button class="project-item" data-project="Work"><span class="project-dot"></span><span>Work</span><span class="nav-count" id="project-work"></span></button>
+          <button class="project-item" data-project="Personal"><span class="project-dot"></span><span>Personal</span><span class="nav-count" id="project-personal"></span></button>
+          <button class="project-item" data-project="Ideas"><span class="project-dot"></span><span>Ideas</span><span class="nav-count" id="project-ideas"></span></button>
+        </div>
+      </div>
+      <div class="sidebar-bottom">
+        <div class="quote-card"><p>“Almost everything will work again if you unplug it for a few minutes, including you.”</p><span>ANNE LAMOTT</span></div>
+        <div class="account"><div class="avatar">JD</div><div><div class="account-name">Jamie Davis</div><div class="account-plan">A little more intentional</div></div></div>
+      </div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <div class="date-label" id="date-label"></div>
+        <div class="top-actions">
+          <label class="search-wrap"><i data-lucide="search"></i><input class="search-input" id="search-input" type="search" placeholder="Find a task" aria-label="Search tasks"></label>
+          <button class="icon-button" id="clear-completed" title="Clear completed tasks" aria-label="Clear completed tasks"><i data-lucide="list-filter"></i></button>
+        </div>
+      </header>
+
+      <div class="content-grid">
+        <section class="main-column" aria-label="Task list">
+          <h1 class="greeting" id="greeting">Good morning, Jamie.</h1>
+          <p class="greeting-sub" id="greeting-sub">A little progress is still progress.</p>
+          <div class="progress-line"><div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div><span class="progress-copy" id="progress-copy"></span></div>
+          <div class="list-heading"><h2 class="list-title" id="list-title">Today's focus</h2><span class="sort-label"><i data-lucide="arrow-down-wide-narrow"></i> By priority</span></div>
+          <div class="task-list" id="task-list" aria-live="polite"></div>
+          <form class="add-form" id="add-form">
+            <div class="add-top"><span class="add-symbol"><i data-lucide="plus"></i></span><input class="task-input" id="task-input" type="text" maxlength="120" placeholder="Add a task to your day..." autocomplete="off" required aria-label="New task"></div>
+            <div class="form-bottom">
+              <select class="field-select" id="project-input" aria-label="Task project"><option>Work</option><option>Personal</option><option>Ideas</option></select>
+              <select class="field-select" id="priority-input" aria-label="Task priority"><option value="medium">Medium</option><option value="high">High</option><option value="low">Low</option></select>
+              <input class="field-select date-input" id="due-input" type="date" aria-label="Due date">
+              <button class="add-submit" type="submit"><i data-lucide="plus"></i> Add task</button>
+            </div>
+          </form>
+        </section>
+
+        <aside class="right-column" aria-label="Daily overview">
+          <section class="day-card">
+            <div class="day-photo"><span class="day-photo-label">A slower kind of day</span></div>
+            <div class="day-content"><h2 class="day-card-title">Your day, at a glance</h2><div class="day-stat"><span>On your list</span><strong id="stat-total">0 tasks</strong></div><div class="day-stat"><span>All wrapped up</span><strong id="stat-done">0%</strong></div><div class="day-stat"><span>Still to do</span><strong id="stat-left">0 tasks</strong></div></div>
+          </section>
+          <section class="focus-card"><div class="focus-label"><i data-lucide="sparkles"></i> A small reminder</div><h2 class="focus-title">You don't have to do it all today.</h2><p class="focus-note">Pick the next right thing. The rest can wait.</p></section>
+          <h2 class="upcoming-title">Coming up</h2>
+          <div id="upcoming-list"></div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = "daymark-tasks-v1";
+      const localDate = (date = new Date()) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      };
+      const today = localDate();
+      const tomorrowDate = new Date();
+      tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+      const tomorrow = localDate(tomorrowDate);
+      const initialTasks = [
+        { id: "seed-1", title: "Send the project proposal", project: "Work", priority: "high", due: today, completed: false },
+        { id: "seed-2", title: "Review the new design direction", project: "Work", priority: "medium", due: today, completed: false },
+        { id: "seed-3", title: "Take a proper lunch break", project: "Personal", priority: "low", due: today, completed: false },
+        { id: "seed-4", title: "Share the reading list with Morgan", project: "Ideas", priority: "medium", due: tomorrow, completed: false },
+        { id: "seed-5", title: "Pick up a few things for the weekend", project: "Personal", priority: "low", due: "", completed: true }
+      ];
+      let tasks;
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        tasks = Array.isArray(saved) ? saved.filter(task => task && typeof task.title === "string") : initialTasks;
+      } catch {
+        tasks = initialTasks;
+      }
+
+      let currentFilter = "today";
+      let currentProject = "";
+      const $ = selector => document.querySelector(selector);
+      const taskList = $("#task-list");
+      const dateLabel = $("#date-label");
+      const titles = { today: "Today's focus", upcoming: "Coming up", all: "All tasks", completed: "Done and dusted" };
+      dateLabel.textContent = new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric" }).format(new Date());
+      const hour = new Date().getHours();
+      $("#greeting").textContent = `${hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening"}, Jamie.`;
+      $("#due-input").value = today;
+
+      const escapeHTML = value => String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+      const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+      const formatDue = due => {
+        if (!due) return "No date";
+        if (due === today) return "Today";
+        if (due === tomorrow) return "Tomorrow";
+        const date = new Date(`${due}T12:00:00`);
+        return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(date);
+      };
+      const activeTasks = () => tasks.filter(task => !task.completed);
+      const visibleTasks = () => {
+        let result = tasks;
+        if (currentProject) result = result.filter(task => task.project === currentProject);
+        else if (currentFilter === "today") result = result.filter(task => task.due === today && !task.completed);
+        else if (currentFilter === "upcoming") result = result.filter(task => task.due > today && !task.completed);
+        else if (currentFilter === "completed") result = result.filter(task => task.completed);
+        const query = $("#search-input").value.trim().toLowerCase();
+        if (query) result = result.filter(task => `${task.title} ${task.project}`.toLowerCase().includes(query));
+        const order = { high: 0, medium: 1, low: 2 };
+        return [...result].sort((a, b) => Number(a.completed) - Number(b.completed) || (order[a.priority] ?? 1) - (order[b.priority] ?? 1) || (a.due || "9999").localeCompare(b.due || "9999"));
+      };
+      const updateTitle = () => {
+        $("#list-title").textContent = currentProject || titles[currentFilter];
+        $("#greeting-sub").textContent = currentProject ? `A few small steps for ${currentProject.toLowerCase()}.` : currentFilter === "today" ? "A little progress is still progress." : currentFilter === "completed" ? "Look at everything you've already done." : "Make space for what matters, one task at a time.";
+      };
+      const renderTasks = () => {
+        const list = visibleTasks();
+        if (!list.length) {
+          const message = $("#search-input").value.trim() ? "No tasks match that search." : currentFilter === "today" && !currentProject ? "Nothing on the list for today. Enjoy the breathing room." : "It's quiet here for now.";
+          taskList.innerHTML = `<div class="empty-state"><i data-lucide="check-check"></i>${escapeHTML(message)}</div>`;
+        } else {
+          taskList.innerHTML = list.map(task => {
+            const overdue = !task.completed && task.due && task.due < today;
+            const dueMarkup = task.due ? `<span class="due-chip${overdue ? " overdue" : ""}">${escapeHTML(overdue ? `Overdue · ${formatDue(task.due)}` : formatDue(task.due))}</span>` : "";
+            return `<article class="task-row${task.completed ? " completed" : ""}" data-id="${escapeHTML(task.id)}">
+              <button class="check-button" data-action="toggle" aria-label="${task.completed ? "Mark incomplete" : "Complete task"}" title="${task.completed ? "Mark incomplete" : "Complete task"}"><i data-lucide="check"></i></button>
+              <div class="task-copy"><div class="task-name">${escapeHTML(task.title)}</div><div class="task-meta"><span class="category" data-project="${escapeHTML(task.project)}">${escapeHTML(task.project)}</span>${dueMarkup}</div></div>
+              <span class="priority ${escapeHTML(task.priority)}">${escapeHTML(task.priority[0].toUpperCase() + task.priority.slice(1))}</span>
+              <button class="delete-button" data-action="delete" aria-label="Delete ${escapeHTML(task.title)}" title="Delete task"><i data-lucide="trash-2"></i></button>
+            </article>`;
+          }).join("");
+        }
+        if (window.lucide) lucide.createIcons();
+      };
+      const render = () => {
+        const active = activeTasks();
+        const todayTasks = active.filter(task => task.due === today);
+        const completedToday = tasks.filter(task => task.completed && task.due === today).length;
+        const donePercent = todayTasks.length + completedToday ? Math.round(completedToday / (todayTasks.length + completedToday) * 100) : 0;
+        $("#today-count").textContent = todayTasks.length || "";
+        $("#upcoming-count").textContent = active.filter(task => task.due > today).length || "";
+        $("#all-count").textContent = active.length || "";
+        $("#project-work").textContent = active.filter(task => task.project === "Work").length || "";
+        $("#project-personal").textContent = active.filter(task => task.project === "Personal").length || "";
+        $("#project-ideas").textContent = active.filter(task => task.project === "Ideas").length || "";
+        $("#progress-fill").style.width = `${donePercent}%`;
+        $("#progress-copy").textContent = `${completedToday} of ${todayTasks.length + completedToday} done today`;
+        $("#stat-total").textContent = `${todayTasks.length + completedToday} task${todayTasks.length + completedToday === 1 ? "" : "s"}`;
+        $("#stat-done").textContent = `${donePercent}%`;
+        $("#stat-left").textContent = `${todayTasks.length} task${todayTasks.length === 1 ? "" : "s"}`;
+        const upcoming = active.filter(task => task.due > today).sort((a, b) => a.due.localeCompare(b.due)).slice(0, 2);
+        $("#upcoming-list").innerHTML = upcoming.length ? upcoming.map(task => {
+          const date = new Date(`${task.due}T12:00:00`);
+          const parts = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).formatToParts(date);
+          const month = parts.find(part => part.type === "month")?.value || "";
+          const day = parts.find(part => part.type === "day")?.value || "";
+          return `<div class="upcoming-item"><div class="upcoming-date">${escapeHTML(month)}<br>${escapeHTML(day)}</div><div class="upcoming-text">${escapeHTML(task.title)}<span>${escapeHTML(task.project)}</span></div></div>`;
+        }).join("") : `<div class="upcoming-item"><div class="upcoming-text" style="color:#999e93">No upcoming tasks</div></div>`;
+        updateTitle();
+        renderTasks();
+      };
+
+      $("#main-nav").addEventListener("click", event => {
+        const button = event.target.closest("[data-filter]");
+        if (!button) return;
+        currentFilter = button.dataset.filter;
+        currentProject = "";
+        document.querySelectorAll(".nav-item").forEach(item => item.classList.toggle("active", item === button));
+        document.querySelectorAll(".project-item").forEach(item => item.classList.remove("selected"));
+        render();
+      });
+      document.querySelectorAll(".project-item").forEach(button => button.addEventListener("click", () => {
+        currentProject = currentProject === button.dataset.project ? "" : button.dataset.project;
+        if (currentProject) currentFilter = "all";
+        document.querySelectorAll(".nav-item").forEach(item => item.classList.toggle("active", !currentProject && item.dataset.filter === currentFilter));
+        document.querySelectorAll(".project-item").forEach(item => item.classList.toggle("selected", item === button && !!currentProject));
+        render();
+      }));
+      taskList.addEventListener("click", event => {
+        const button = event.target.closest("[data-action]");
+        const row = event.target.closest("[data-id]");
+        if (!button || !row) return;
+        if (button.dataset.action === "toggle") tasks = tasks.map(task => task.id === row.dataset.id ? { ...task, completed: !task.completed } : task);
+        if (button.dataset.action === "delete") tasks = tasks.filter(task => task.id !== row.dataset.id);
+        save();
+        render();
+      });
+      $("#add-form").addEventListener("submit", event => {
+        event.preventDefault();
+        const title = $("#task-input").value.trim();
+        if (!title) return;
+        tasks.unshift({ id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), title, project: $("#project-input").value, priority: $("#priority-input").value, due: $("#due-input").value, completed: false });
+        save();
+        $("#task-input").value = "";
+        currentFilter = "all";
+        currentProject = "";
+        document.querySelectorAll(".nav-item").forEach(item => item.classList.toggle("active", item.dataset.filter === "all"));
+        document.querySelectorAll(".project-item").forEach(item => item.classList.remove("selected"));
+        render();
+        $("#task-input").focus();
+      });
+      $("#search-input").addEventListener("input", renderTasks);
+      $("#clear-completed").addEventListener("click", () => {
+        const count = tasks.filter(task => task.completed).length;
+        if (!count) {
+          currentFilter = "completed";
+          currentProject = "";
+          document.querySelectorAll(".nav-item").forEach(item => item.classList.toggle("active", item.dataset.filter === "completed"));
+          document.querySelectorAll(".project-item").forEach(item => item.classList.remove("selected"));
+        } else {
+          tasks = tasks.filter(task => !task.completed);
+          save();
+        }
+        render();
+      });
+      if (window.lucide) lucide.createIcons();
+      render();
+    })();
+  </script>
+</body>
+</html>
