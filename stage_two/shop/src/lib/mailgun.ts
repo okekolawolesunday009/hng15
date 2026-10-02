@@ -62,7 +62,7 @@ export async function sendOrderConfirmationEmail(order: OrderConfirmation) {
       orderId: order.orderId,
       name: order.name,
       items: order.items,
-      appUrl: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+      appUrl: process.env.NEXT_CONFIG_APP_URL ?? "http://localhost:3000",
     });
 
     await client.messages.create(domain, {
@@ -99,7 +99,7 @@ export async function sendWelcomeEmail(user: WelcomeUser) {
   const apiKey = process.env.MAILGUN_API_KEY;
   const domain = process.env.MAILGUN_DOMAIN;
   const fromEmail = process.env.MAILGUN_FROM_EMAIL;
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const appUrl = process.env.NEXT_CONFIG_APP_URL ?? "http://localhost:3000";
 
   const missingConfiguration = [
     !user.email ? "recipient email" : null,
