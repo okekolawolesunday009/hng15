@@ -252,6 +252,10 @@ img {
   font-size: 0.65rem;
 }
 
+.mobile-header-cart {
+  display: none;
+}
+
 .mobile-menu-toggle {
   display: none;
   width: 3rem;
@@ -281,6 +285,10 @@ img {
 
 .mobile-nav.is-open {
   display: flex;
+}
+
+.mobile-bottom-nav {
+  display: none;
 }
 
 .mobile-nav a,
@@ -595,24 +603,161 @@ img {
     display: inline-block;
   }
 
+  .mobile-header-cart {
+    position: relative;
+    display: inline-flex;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex: 0 0 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--foreground);
+    transition: background-color 0.16s ease, border-color 0.16s ease;
+  }
+
+  .mobile-header-cart:hover,
+  .mobile-header-cart.is-active {
+    border-color: var(--foreground);
+    background: var(--surface-muted);
+  }
+
+  .mobile-header-cart svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .mobile-header-cart-count {
+    position: absolute;
+    top: -0.2rem;
+    right: -0.2rem;
+    display: grid;
+    min-width: 1.1rem;
+    height: 1.1rem;
+    padding: 0 0.2rem;
+    place-items: center;
+    border: 1px solid var(--background);
+    border-radius: var(--radius-pill);
+    background: var(--lime);
+    color: var(--foreground);
+    font-size: 0.6rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
   .footer-main {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 640px) {
+  html {
+    scroll-padding-top: calc(4.5rem + env(safe-area-inset-top));
+  }
+
+  body:has(.mobile-bottom-nav) {
+    padding-bottom: calc(4.25rem + env(safe-area-inset-bottom));
+  }
+
+  .store-header {
+    padding-top: env(safe-area-inset-top);
+  }
+
   .announcement-bar {
-    flex-direction: column;
-    gap: 0.35rem;
-    letter-spacing: 0.1em;
+    display: none;
   }
 
   .header-main {
-    padding: 0.85rem 0.9rem;
+    padding: 0.65rem 0.9rem;
   }
 
   .brand-wordmark small {
-    letter-spacing: 0.15em;
+    display: none;
+  }
+
+  .mobile-menu-toggle,
+  .mobile-nav,
+  .mobile-nav.is-open {
+    display: none;
+  }
+
+  .mobile-bottom-nav {
+    position: fixed;
+    z-index: 60;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    min-height: calc(4.25rem + env(safe-area-inset-bottom));
+    padding: 0.35rem max(0.5rem, env(safe-area-inset-right)) calc(0.35rem + env(safe-area-inset-bottom)) max(0.5rem, env(safe-area-inset-left));
+    border-top: 1px solid var(--border);
+    background: var(--background);
+  }
+
+  .mobile-bottom-nav-link {
+    display: grid;
+    min-width: 0;
+    min-height: 3rem;
+    align-content: center;
+    justify-items: center;
+    gap: 0.15rem;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: 0.65rem;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+    transition: color 0.16s ease, background-color 0.16s ease;
+  }
+
+  .mobile-bottom-nav-link.is-active {
+    background: var(--surface-muted);
+    color: var(--foreground);
+  }
+
+  .mobile-bottom-nav-icon {
+    position: relative;
+    display: grid;
+    width: 1.5rem;
+    height: 1.5rem;
+    place-items: center;
+  }
+
+  .mobile-bottom-nav-icon svg {
+    width: 1.35rem;
+    height: 1.35rem;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .mobile-bottom-nav-link.is-active .mobile-bottom-nav-icon svg {
+    stroke-width: 2.2;
+  }
+
+  .mobile-bottom-nav-count {
+    position: absolute;
+    top: -0.2rem;
+    right: -0.45rem;
+    display: grid;
+    min-width: 1rem;
+    height: 1rem;
+    padding: 0 0.2rem;
+    place-items: center;
+    border: 1px solid var(--background);
+    border-radius: var(--radius-pill);
+    background: var(--lime);
+    color: var(--foreground);
+    font-size: 0.58rem;
+    font-weight: 700;
   }
 
   .footer-main,

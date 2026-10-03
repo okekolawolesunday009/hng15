@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { DM_Sans, Playfair_Display } from "next/font/google";
 import { auth } from "@/auth";
 import { CartProvider } from "@/components/cart-provider";
+import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
@@ -33,6 +34,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#171717",
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
@@ -43,7 +45,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 
   return (
     <html lang="en" data-scroll-behavior="smooth" className={`${dmSans.variable} ${playfair.variable} h-full antialiased`}>
-      <body className="min-h-full bg-slate-50 text-slate-900">
+      <body className="min-h-dvh bg-slate-50 text-slate-900">
         <SerwistProvider
           swUrl="/serwist/sw.js"
           disable={process.env.NODE_ENV !== "production"}
@@ -53,6 +55,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           <CartProvider userId={session?.user?.id ?? null}>
             <SiteHeader user={user} />
             {children}
+            <MobileBottomNav isAuthenticated={Boolean(session?.user)} />
           </CartProvider>
         </SerwistProvider>
       </body>

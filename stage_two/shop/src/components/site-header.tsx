@@ -64,6 +64,22 @@ export function SiteHeader({
               <Link href="/cart" className="header-cart">
                 Bag <span>{itemCount}</span>
               </Link>
+              <Link
+                href="/cart"
+                className={`mobile-header-cart${pathname === "/cart" ? " is-active" : ""}`}
+                aria-label={itemCount > 0 ? `Bag, ${itemCount} ${itemCount === 1 ? "item" : "items"}` : "Bag"}
+                aria-current={pathname === "/cart" ? "page" : undefined}
+              >
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+                  <path d="M5 8.5h14l1 12H4z" />
+                  <path d="M9 9V6a3 3 0 0 1 6 0v3" />
+                </svg>
+                {itemCount > 0 ? (
+                  <span className="mobile-header-cart-count" aria-hidden="true">
+                    {itemCount > 99 ? "99+" : itemCount}
+                  </span>
+                ) : null}
+              </Link>
               <button
                 type="button"
                 className="mobile-menu-toggle"
