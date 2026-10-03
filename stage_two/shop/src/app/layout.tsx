@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+import { SerwistProvider } from "@serwist/turbopack/react";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { DM_Sans, Playfair_Display } from "next/font/google";
 import { auth } from "@/auth";
@@ -19,6 +20,19 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Northstar | Objects for the everyday",
   description: "Considered pieces for a softer, more intentional everyday.",
+  applicationName: "Northstar",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Northstar",
+  },
+  icons: {
+    apple: "/icons/apple-touch-icon.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#171717",
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
@@ -30,10 +44,17 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="en" data-scroll-behavior="smooth" className={`${dmSans.variable} ${playfair.variable} h-full antialiased`}>
       <body className="min-h-full bg-slate-50 text-slate-900">
-        <CartProvider userId={session?.user?.id ?? null}>
-          <SiteHeader user={user} />
-          {children}
-        </CartProvider>
+        <SerwistProvider
+          swUrl="/serwist/sw.js"
+          disable={process.env.NODE_ENV !== "production"}
+          cacheOnNavigation={false}
+          options={{ scope: "/" }}
+        >
+          <CartProvider userId={session?.user?.id ?? null}>
+            <SiteHeader user={user} />
+            {children}
+          </CartProvider>
+        </SerwistProvider>
       </body>
     </html>
   );

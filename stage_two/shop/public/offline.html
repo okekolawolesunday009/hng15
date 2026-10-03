@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#171717">
+    <title>Northstar | Offline</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: "DM Sans", system-ui, sans-serif;
+        background: #f4f1e8;
+        color: #171717;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        display: grid;
+        min-height: 100vh;
+        margin: 0;
+        padding: 24px;
+        place-items: center;
+      }
+
+      main {
+        width: min(100%, 520px);
+        padding: 40px;
+        border: 1px solid #d9d5c9;
+        border-radius: 24px;
+        background: #fffefa;
+      }
+
+      .mark {
+        display: grid;
+        width: 48px;
+        aspect-ratio: 1;
+        place-items: center;
+        border-radius: 50%;
+        background: #18251d;
+        color: #e9ff70;
+        font-size: 24px;
+      }
+
+      h1 {
+        margin: 32px 0 12px;
+        font-family: Georgia, serif;
+        font-size: clamp(36px, 8vw, 52px);
+        font-weight: 500;
+        line-height: 1;
+      }
+
+      p {
+        margin: 0;
+        color: #5e615a;
+        font-size: 16px;
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="mark" aria-hidden="true">✦</div>
+      <h1>You’re offline.</h1>
+      <p>Northstar will be here when your connection returns.</p>
+    </main>
+  </body>
+</html>

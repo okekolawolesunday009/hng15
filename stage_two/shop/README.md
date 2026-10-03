@@ -10,6 +10,10 @@ After updating the database schema, apply migrations from this directory with `n
 
 Mailgun is used only for server-side application email. Set `MAILGUN_API_KEY`, `MAILGUN_DOMAIN`, and `MAILGUN_FROM_EMAIL` in `.env`; the sender address must be authorized for the configured Mailgun domain. Sandbox domains can deliver only to authorized recipients. The first-user welcome event is recorded in `email_events` under a unique user key to prevent duplicate sends. Apply database migrations before testing it. Order confirmation email is not enabled until a payment provider verifies successful payment server-side.
 
+## Progressive Web App
+
+The production service worker precaches only Next.js static assets, the app icons, and a generic offline page. It does not cache pages, Auth.js routes, server actions, or API responses. Registration is disabled during development; test service-worker behavior with `npm run build` followed by `npm start`. Production installation requires HTTPS (localhost is treated as a secure context).
+
 ## Getting Started
 
 First, run the development server:
