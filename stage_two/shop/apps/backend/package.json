@@ -16,6 +16,7 @@
     "mailgun:test": "tsx scripts/test-mailgun.ts"
   },
   "dependencies": {
+    "@northstar/shared": "*",
     "@auth/core": "^0.41.3",
     "@auth/drizzle-adapter": "^1.11.3",
     "@neondatabase/serverless": "^1.0.0",
