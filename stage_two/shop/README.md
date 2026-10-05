@@ -1,50 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Northstar Workspace
 
-## Shopping Cart
+Northstar is split into three npm workspaces:
 
-Guest carts are stored in browser local storage as product IDs and quantities only. Product names, prices, and stock are loaded from Neon through server actions. Signed-in carts are stored in the `carts` and `cart_items` tables and are scoped to the authenticated user.
+- `apps/frontend`: Next.js storefront and PWA shell.
+- `apps/backend`: Auth.js, HTTP API, Neon/Drizzle persistence, and server integrations.
+- `apps/mobile`: Expo / React Native storefront for native iOS and Android.
+- `packages/shared`: shared API contracts.
 
-After updating the database schema, apply migrations from this directory with `npm run db:migrate`. Run `npm run typecheck`, `npm run lint`, and `npm run test` to check the cart implementation. No cart-specific environment variables are required.
+## Setup
 
-## Transactional Email
+Use Node.js 24 or later. Run `npm install` from this directory. Copy `apps/frontend/.env.example` to `apps/frontend/.env` for the public app/backend URLs. Copy `apps/backend/.env.example` to `apps/backend/.env` and configure database, Auth.js/Google, and Mailgun secrets there. Google OAuth's local callback is `http://localhost:4000/api/auth/callback/google`.
 
-Mailgun is used only for server-side application email. Set `MAILGUN_API_KEY`, `MAILGUN_DOMAIN`, and `MAILGUN_FROM_EMAIL` in `.env`; the sender address must be authorized for the configured Mailgun domain. Sandbox domains can deliver only to authorized recipients. The first-user welcome event is recorded in `email_events` under a unique user key to prevent duplicate sends. Apply database migrations before testing it. Order confirmation email is not enabled until a payment provider verifies successful payment server-side.
+## Run
 
-## Progressive Web App
+Start these in separate terminals from the workspace root:
 
-The production service worker precaches only Next.js static assets, the app icons, and a generic offline page. It does not cache pages, Auth.js routes, server actions, or API responses. Registration is disabled during development; test service-worker behavior with `npm run build` followed by `npm start`. Production installation requires HTTPS (localhost is treated as a secure context).
-
-## Getting Started
-
-First, run the development server:
-
-```bash
+```powershell
+npm run backend:dev
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The storefront is at `http://localhost:3000`; backend health is at `http://localhost:4000/health`.
+Start the mobile app with `npm --prefix apps/mobile run start`; see
+[`apps/mobile/README.md`](./apps/mobile/README.md) for device networking setup.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Checks
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`: frontend checks.
+- `npm --prefix apps/mobile run typecheck`: mobile TypeScript check.
+- `npm --prefix apps/backend run build`: backend typecheck.
+- `npm --prefix packages/shared run build`: shared-contract typecheck.
 
-## Learn More
+Database commands and scripts belong to `apps/backend`; see its README. Do not run migrations against a shared or production database without authorization. Checkout currently fails closed because payment processing is deferred; no order is placed or confirmation sent.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See [the PWA implementation reference](docs/PWA_IMPLEMENTATION.md) and the architecture notes in `docs/` for further detail.

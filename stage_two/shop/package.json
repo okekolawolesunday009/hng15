@@ -1,45 +1,19 @@
 {
-  "name": "shop",
-  "version": "0.1.0",
+  "name": "northstar-workspace",
   "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test src/lib/cart.test.ts src/lib/welcome-email.test.ts src/lib/order-email.test.ts",
-    "mailgun:test": "tsx scripts/test-mailgun.ts",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
-  },
-  "dependencies": {
-    "@auth/drizzle-adapter": "^1.11.3",
-    "form-data": "^4.0.6",
-    "mailgun.js": "^14.0.1",
-    "next": "16.3.7",
-    "next-auth": "^5.0.0-beta.32",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "zod": "^4.6.5"
-  },
-  "devDependencies": {
-    "@neondatabase/serverless": "^1.0.0",
-    "@serwist/turbopack": "^9.5.12",
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "dotenv": "^17.0.0",
-    "drizzle-kit": "^0.31.4",
-    "drizzle-orm": "^0.44.5",
-    "esbuild": "0.25.12",
-    "eslint": "^9",
-    "eslint-config-next": "16.3.7",
-    "serwist": "^9.5.12",
-    "tailwindcss": "^4",
-    "tsx": "^4.23.15",
-    "typescript": "^5"
+    "dev": "npm --prefix apps/frontend run dev",
+    "build": "npm --prefix apps/frontend run build",
+    "start": "npm --prefix apps/frontend run start",
+    "lint": "npm --prefix apps/frontend run lint",
+    "typecheck": "npm --prefix apps/frontend run typecheck",
+    "test": "npm --prefix apps/frontend run test",
+    "backend:dev": "npm --prefix apps/backend run dev",
+    "backend:start": "npm --prefix apps/backend run start"
   }
 }
