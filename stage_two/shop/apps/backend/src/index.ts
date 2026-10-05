@@ -109,8 +109,20 @@ function getStatusPayload() {
 }
 
 const server = createServer(async (request, response) => {
-  const url = request.url ? new URL(request.url, `http://${request.headers.host ?? "localhost"}`) : null;
+  const forwardedProto = request.headers["x-forwarded-proto"];
 
+  const protocol = (
+    Array.isArray(forwardedProto)
+      ? forwardedProto[0]
+      : forwardedProto ?? "http"
+    ).split(",")[0].trim();
+ 
+  const url = request.url
+    ? new URL(
+        request.url,
+        `${protocol}://${request.headers.host ?? "localhost"}`
+      )
+    : null;
   if (!url) {
     sendJson(response, 400, { success: false, error: { code: "BAD_REQUEST", message: "Request URL is missing." } });
     return;

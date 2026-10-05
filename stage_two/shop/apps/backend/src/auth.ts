@@ -55,7 +55,7 @@ export const authConfig = {
         return storefrontUrl;
       }
 
-      return baseUrl;
+      return storefrontUrl;
     },
   },
 } satisfies AuthConfig;
