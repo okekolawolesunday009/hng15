@@ -28,14 +28,6 @@ export const authConfig = {
   secret: process.env.AUTH_SECRET,
   trustHost: true,
   session: { strategy: "jwt" },
-  logger: {
-    error(error) {
-      console.error("[auth][error]", error);
-      if (error.cause instanceof Error) {
-        console.error("[auth][cause]", error.cause.message);
-      }
-    },
-  },
   events: {
     async createUser({ user }) {
       if (user.id) {
