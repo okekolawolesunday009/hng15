@@ -9,7 +9,7 @@ Northstar is split into three npm workspaces:
 
 ## Setup
 
-Use Node.js 24 or later. Run `npm install` from this directory. Copy `apps/frontend/.env.example` to `apps/frontend/.env` for the public app/backend URLs. Copy `apps/backend/.env.example` to `apps/backend/.env` and configure database, Auth.js/Google, and Mailgun secrets there. Google OAuth's local callback is `http://localhost:4000/api/auth/callback/google`.
+Use Node.js 24 or later. Run `npm install` from this directory. Copy `apps/frontend/.env.example` to `apps/frontend/.env` for the public app/backend URLs. Copy `apps/backend/.env.example` to `apps/backend/.env` and configure database, Auth.js/Google, and Mailgun secrets there. Set the backend `NEXT_PUBLIC_APP_URL` to `http://localhost:3000`; Google's local authorized redirect URI is `http://localhost:3000/api/auth/callback/google`.
 
 ## Run
 

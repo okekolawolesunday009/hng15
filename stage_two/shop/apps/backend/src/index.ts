@@ -149,7 +149,8 @@ const server = createServer(async (request, response) => {
 
   if (pathname === "/api/auth" || pathname.startsWith("/api/auth/")) {
     try {
-      const authResponse = await handleAuthRequest(await toWebRequest(request, url));
+      const storefrontAuthUrl = new URL(`${url.pathname}${url.search}`, storefrontOrigin);
+      const authResponse = await handleAuthRequest(await toWebRequest(request, storefrontAuthUrl));
       await sendWebResponse(response, authResponse);
     } catch (error) {
       console.error("Auth request failed:", error instanceof Error ? error.message : "Unknown error");

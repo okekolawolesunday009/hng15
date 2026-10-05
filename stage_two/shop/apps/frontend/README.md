@@ -9,7 +9,8 @@ Catalog, authentication, sessions, and cart persistence are owned by `apps/backe
 Browser Auth.js requests and signed-in cart/order requests use same-origin
 frontend proxy routes so browsers can retain the session cookie as a
 first-party cookie. Set `NEXT_PUBLIC_APP_URL` to the frontend origin and set
-the backend's `AUTH_URL` to that origin plus `/api/auth`. Register
+the same `NEXT_PUBLIC_APP_URL` in the backend environment. Auth.js uses the
+frontend origin for its callback and first-party auth cookies. Register
 `<frontend-origin>/api/auth/callback/google` as an authorized Google OAuth
 redirect URI. For local development, use
 `http://localhost:3000/api/auth/callback/google`.
