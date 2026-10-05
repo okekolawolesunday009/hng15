@@ -10,10 +10,12 @@ Browser Auth.js requests and signed-in cart/order requests use same-origin
 frontend proxy routes so browsers can retain the session cookie as a
 first-party cookie. Set `NEXT_PUBLIC_APP_URL` to the frontend origin and set
 the same `NEXT_PUBLIC_APP_URL` in the backend environment. Auth.js uses the
-frontend origin for its callback and first-party auth cookies. Register
-`<frontend-origin>/api/auth/callback/google` as an authorized Google OAuth
-redirect URI. For local development, use
-`http://localhost:3000/api/auth/callback/google`.
+frontend origin for its callback and first-party auth cookies. Set the
+backend's `GOOGLE_REDIRECT_URI` to its public `/api/auth/callback/google`
+endpoint and register that URI with Google. Auth.js uses that backend endpoint
+as a redirect proxy and returns the browser to the frontend callback. For
+local development, set it to
+`http://localhost:4000/api/auth/callback/google`.
 
 The frontend proxy forwards these requests to `NEXT_PUBLIC_BACKEND_URL`. Native
 mobile authentication continues to call the backend directly.

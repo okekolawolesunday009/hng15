@@ -22,6 +22,12 @@ export async function proxyBackendRequest(request: Request, backendPath: string)
     if (value) headers.set(name, value);
   }
 
+  if (backendPath === "/api/auth" || backendPath.startsWith("/api/auth/")) {
+    const storefrontUrl = new URL(request.url);
+    headers.set("x-forwarded-host", storefrontUrl.host);
+    headers.set("x-forwarded-proto", storefrontUrl.protocol.slice(0, -1));
+  }
+
   const method = request.method;
   const body = method === "GET" || method === "HEAD"
     ? undefined
