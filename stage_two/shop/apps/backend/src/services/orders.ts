@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { z } from "zod";
 
 export const checkoutSchema = z.object({
@@ -15,3 +16,37 @@ export const checkoutSchema = z.object({
     }
   }),
 });
+
+export type DemoOrderInput = z.infer<typeof checkoutSchema>;
+
+export type DemoOrder = {
+  orderId: string;
+  status: "confirmed";
+  paymentStatus: "demo";
+  paymentAmount: 0;
+  customer: {
+    name: string;
+    email: string;
+    address: string;
+    city: string;
+    postalCode: string;
+  };
+  items: DemoOrderInput["items"];
+};
+
+export function buildDemoOrder(input: DemoOrderInput): DemoOrder {
+  return {
+    orderId: `demo-${randomUUID()}`,
+    status: "confirmed",
+    paymentStatus: "demo",
+    paymentAmount: 0,
+    customer: {
+      name: input.name,
+      email: input.email,
+      address: input.address,
+      city: input.city,
+      postalCode: input.postalCode,
+    },
+    items: input.items,
+  };
+}

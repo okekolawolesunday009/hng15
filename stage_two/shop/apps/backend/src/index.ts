@@ -4,7 +4,7 @@ import { getBackendEnvironment } from "./config/env.ts";
 import { backendRoutes } from "./api/routes.ts";
 import { getCategories, getProductBySlug, getProducts } from "./services/catalog.ts";
 import { getCart, hydrateCart, mutateCart } from "./services/cart.ts";
-import { checkoutSchema } from "./services/orders.ts";
+import { buildDemoOrder, checkoutSchema } from "./services/orders.ts";
 import { getAuthenticatedSession } from "./services/auth.ts";
 import {
   exchangeGoogleIdToken,
@@ -342,6 +342,21 @@ const server = createServer(async (request, response) => {
       const payload = checkoutSchema.safeParse(await readJsonBody(request));
       if (!payload.success) {
         sendJson(response, 400, { success: false, error: { code: "BAD_REQUEST", message: "Checkout details are invalid." } });
+        return;
+      }
+
+      if (process.env.PAYMENT_PROVIDER?.toLowerCase() === "none") {
+        sendJson(response, 201, {
+          success: true,
+          data: {
+            order: buildDemoOrder(payload.data),
+            payment: {
+              method: "demo",
+              charged: false,
+              message: "No payment was taken. This order was created for local demo purposes.",
+            },
+          },
+        });
         return;
       }
 
