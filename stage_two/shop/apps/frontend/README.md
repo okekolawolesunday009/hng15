@@ -2,7 +2,20 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Backend API
 
-Catalog, authentication, sessions, and cart persistence are owned by `apps/backend`. Set `NEXT_PUBLIC_BACKEND_URL` in the frontend environment and run the backend separately with `npm run backend:dev` from the workspace root. Google OAuth callbacks must target `http://localhost:4000/api/auth/callback/google` in development.
+Catalog, authentication, sessions, and cart persistence are owned by `apps/backend`. Set `NEXT_PUBLIC_BACKEND_URL` in the frontend environment and run the backend separately with `npm run backend:dev` from the workspace root.
+
+### Browser authentication
+
+Browser Auth.js requests and signed-in cart/order requests use same-origin
+frontend proxy routes so browsers can retain the session cookie as a
+first-party cookie. Set `NEXT_PUBLIC_APP_URL` to the frontend origin and set
+the backend's `AUTH_URL` to that origin plus `/api/auth`. Register
+`<frontend-origin>/api/auth/callback/google` as an authorized Google OAuth
+redirect URI. For local development, use
+`http://localhost:3000/api/auth/callback/google`.
+
+The frontend proxy forwards these requests to `NEXT_PUBLIC_BACKEND_URL`. Native
+mobile authentication continues to call the backend directly.
 
 Database schemas, migrations, and external-service credentials belong in `apps/backend`. Run database commands from that package with `npm run db:generate` or `npm run db:migrate`. Payment processing is deferred; checkout currently reports that no order was placed.
 

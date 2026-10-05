@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:4000";
-
 export function SignInButton({ callbackUrl }: { callbackUrl: string }) {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -13,16 +11,14 @@ export function SignInButton({ callbackUrl }: { callbackUrl: string }) {
     setError(null);
 
     try {
-      const csrfResponse = await fetch(`${backendUrl}/api/auth/csrf`, {
-        credentials: "include",
+      const csrfResponse = await fetch("/api/auth/csrf", {
         cache: "no-store",
       });
       if (!csrfResponse.ok) throw new Error("Unable to start sign in.");
 
       const { csrfToken } = await csrfResponse.json() as { csrfToken: string };
-      const response = await fetch(`${backendUrl}/api/auth/signin/google`, {
+      const response = await fetch("/api/auth/signin/google", {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
           "X-Auth-Return-Redirect": "1",

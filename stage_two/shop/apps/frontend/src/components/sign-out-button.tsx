@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:4000";
-
 export function SignOutButton() {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -13,16 +11,14 @@ export function SignOutButton() {
     setError(null);
 
     try {
-      const csrfResponse = await fetch(`${backendUrl}/api/auth/csrf`, {
-        credentials: "include",
+      const csrfResponse = await fetch("/api/auth/csrf", {
         cache: "no-store",
       });
       if (!csrfResponse.ok) throw new Error("Unable to start sign out.");
 
       const { csrfToken } = await csrfResponse.json() as { csrfToken: string };
-      const response = await fetch(`${backendUrl}/api/auth/signout`, {
+      const response = await fetch("/api/auth/signout", {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
           "X-Auth-Return-Redirect": "1",

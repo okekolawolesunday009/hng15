@@ -17,7 +17,9 @@ export default async function SignInPage({
 
   const hasGoogleConfig = await hasBackendGoogleProvider();
   const isConfigurationError = params.error === "Configuration";
-  const callbackUrl = new URL("/", process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").toString();
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const callbackUrl = new URL("/", appUrl).toString();
+  const googleRedirectUri = new URL("/api/auth/callback/google", appUrl).toString();
 
   return (
     <main className="mx-auto flex min-h-screen max-w-xl items-center justify-center px-6 py-12">
@@ -31,7 +33,7 @@ export default async function SignInPage({
         {isConfigurationError ? (
           <div className="mt-8 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
             Google OAuth is not configured correctly. Check the Google client ID and secret, and add this redirect URI in Google Cloud Console:
-            <div className="mt-2 break-all font-mono text-xs">http://localhost:4000/api/auth/callback/google</div>
+            <div className="mt-2 break-all font-mono text-xs">{googleRedirectUri}</div>
           </div>
         ) : null}
 

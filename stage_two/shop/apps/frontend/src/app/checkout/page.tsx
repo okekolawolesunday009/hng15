@@ -6,8 +6,6 @@ import { z } from "zod";
 import { useCart } from "@/components/cart-provider";
 import { formatCurrency } from "@/lib/cart";
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:4000";
-
 const checkoutSchema = z.object({
   name: z.string().min(2, "Please enter your full name."),
   email: z.string().email("Please use a valid email address."),
@@ -88,9 +86,8 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
     try {
       const orderItems = items.map(({ id, quantity }) => ({ productId: id, quantity }));
-      const response = await fetch(`${backendUrl}/api/v1/orders`, {
+      const response = await fetch("/api/backend/v1/orders", {
         method: "POST",
-        credentials: "include",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({ ...result.data, items: orderItems }),
       });

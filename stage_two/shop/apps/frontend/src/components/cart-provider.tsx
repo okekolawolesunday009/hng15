@@ -17,12 +17,9 @@ import {
 
 type CartActionResult = { items: CartItem[]; error: string | null };
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:4000";
-
 async function requestCart(path: string, body: unknown): Promise<CartActionResult> {
-  const response = await fetch(`${backendUrl}/api/v1/cart/${path}`, {
+  const response = await fetch(`/api/backend/v1/cart/${path}`, {
     method: "POST",
-    credentials: "include",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
     body: JSON.stringify(body),
   });
