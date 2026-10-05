@@ -6,6 +6,11 @@ import { getCategories, getProductBySlug, getProducts } from "./services/catalog
 import { getCart, hydrateCart, mutateCart } from "./services/cart.ts";
 import { checkoutSchema } from "./services/orders.ts";
 import { getAuthenticatedSession } from "./services/auth.ts";
+import {
+  exchangeGoogleIdToken,
+  MobileAuthError,
+  revokeMobileSession,
+} from "./services/mobile-auth.ts";
 
 const env = getBackendEnvironment();
 const port = Number(process.env.PORT ?? 4000);
@@ -182,6 +187,54 @@ const server = createServer(async (request, response) => {
     return;
   }
 
+  if (method === "POST" && pathname === "/api/v1/auth/mobile/google") {
+    try {
+      const payload = await readJsonBody(request);
+      const idToken = typeof payload === "object" && payload !== null && "idToken" in payload
+        ? payload.idToken
+        : undefined;
+      sendJson(response, 200, {
+        success: true,
+        data: await exchangeGoogleIdToken(idToken),
+      });
+    } catch (error) {
+      if (error instanceof MobileAuthError) {
+        sendJson(response, error.status, {
+          success: false,
+          error: { code: error.code, message: error.message },
+        });
+        return;
+      }
+      if (error instanceof Error && error.message === "Invalid JSON body.") {
+        sendJson(response, 400, {
+          success: false,
+          error: { code: "BAD_REQUEST", message: "Invalid JSON body." },
+        });
+        return;
+      }
+      console.error("Mobile sign-in failed:", error instanceof Error ? error.message : "Unknown error");
+      sendJson(response, 500, {
+        success: false,
+        error: { code: "INTERNAL_ERROR", message: "Unable to complete mobile sign-in." },
+      });
+    }
+    return;
+  }
+
+  if (method === "POST" && pathname === "/api/v1/auth/mobile/logout") {
+    try {
+      await revokeMobileSession(request.headers.authorization);
+      sendJson(response, 200, { success: true, data: { signedOut: true } });
+    } catch (error) {
+      console.error("Mobile sign-out failed:", error instanceof Error ? error.message : "Unknown error");
+      sendJson(response, 500, {
+        success: false,
+        error: { code: "INTERNAL_ERROR", message: "Unable to revoke the mobile session." },
+      });
+    }
+    return;
+  }
+
   if (method === "GET" && pathname === "/api/v1/categories") {
     try {
       const categories = await getCategories();
@@ -211,7 +264,10 @@ const server = createServer(async (request, response) => {
 
   if (method === "GET" && pathname === "/api/v1/cart") {
     try {
-      sendJson(response, 200, { success: true, data: await getCart(request.headers.cookie ?? null) });
+      sendJson(response, 200, {
+        success: true,
+        data: await getCart(request.headers.cookie ?? null, request.headers.authorization),
+      });
     } catch {
       sendJson(response, 500, { success: false, error: { code: "INTERNAL_ERROR", message: "Unable to load cart." } });
     }
@@ -221,7 +277,7 @@ const server = createServer(async (request, response) => {
   if (method === "POST" && pathname === "/api/v1/cart/hydrate") {
     try {
       const lines = await readJsonBody(request);
-      const result = await hydrateCart(request.headers.cookie ?? null, lines);
+      const result = await hydrateCart(request.headers.cookie ?? null, lines, request.headers.authorization);
       sendJson(response, 200, { success: true, data: result });
     } catch {
       sendJson(response, 400, { success: false, error: { code: "BAD_REQUEST", message: "Invalid cart data." } });
@@ -232,7 +288,7 @@ const server = createServer(async (request, response) => {
   if (method === "POST" && pathname === "/api/v1/cart/items") {
     try {
       const payload = await readJsonBody(request);
-      const result = await mutateCart(request.headers.cookie ?? null, payload);
+      const result = await mutateCart(request.headers.cookie ?? null, payload, request.headers.authorization);
       sendJson(response, 200, { success: true, data: result });
     } catch {
       sendJson(response, 400, { success: false, error: { code: "BAD_REQUEST", message: "Invalid JSON body." } });
@@ -241,13 +297,21 @@ const server = createServer(async (request, response) => {
   }
 
   if (method === "GET" && pathname === "/api/v1/users/me") {
-    const session = await getAuthenticatedSession(request.headers.cookie ?? null);
-    if (!session) {
-      sendJson(response, 401, { success: false, error: { code: "UNAUTHORIZED", message: "Authentication required." } });
-      return;
-    }
+    try {
+      const session = await getAuthenticatedSession(
+        request.headers.cookie ?? null,
+        request.headers.authorization,
+      );
+      if (!session) {
+        sendJson(response, 401, { success: false, error: { code: "UNAUTHORIZED", message: "Authentication required." } });
+        return;
+      }
 
-    sendJson(response, 200, { success: true, data: session });
+      sendJson(response, 200, { success: true, data: session });
+    } catch (error) {
+      console.error("Session request failed:", error instanceof Error ? error.message : "Unknown error");
+      sendJson(response, 500, { success: false, error: { code: "INTERNAL_ERROR", message: "Unable to load account session." } });
+    }
     return;
   }
 

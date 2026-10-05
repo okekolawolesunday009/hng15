@@ -10,6 +10,7 @@ export type ApiErrorCode =
   | "NOT_FOUND"
   | "CONFLICT"
   | "PAYMENT_UNAVAILABLE"
+  | "AUTH_UNAVAILABLE"
   | "INTERNAL_ERROR";
 
 export type ApiErrorResponse = {
@@ -80,6 +81,13 @@ export type AuthSessionSummary = {
   authenticated: true;
 };
 
+export type MobileAuthData = {
+  accessToken: string;
+  expiresAt: string;
+  user: UserSummary;
+};
+
 export type ProductListResponse = ApiSuccessResponse<ProductSummary[]>;
 export type UserSessionResponse = ApiSuccessResponse<AuthSessionSummary>;
 export type CartResponse = ApiSuccessResponse<CartData>;
+export type MobileAuthResponse = ApiSuccessResponse<MobileAuthData>;

@@ -11,6 +11,18 @@ export type ApiRoute = z.infer<typeof apiRouteSchema>;
 
 export const backendRoutes: ApiRoute[] = [
   {
+    method: "POST",
+    path: "/api/v1/auth/mobile/google",
+    authRequired: false,
+    description: "Exchange a verified Google ID token for a revocable native session.",
+  },
+  {
+    method: "POST",
+    path: "/api/v1/auth/mobile/logout",
+    authRequired: true,
+    description: "Revoke the current native session.",
+  },
+  {
     method: "GET",
     path: "/api/v1/products",
     authRequired: false,

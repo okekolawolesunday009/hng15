@@ -105,16 +105,20 @@ async function loadUserCart(userId: string): Promise<CartActionResult> {
   return { items, error: checkAvailability(items) };
 }
 
-async function getIdentity(cookie: string | null) {
-  const session = await getAuthenticatedSession(cookie);
+async function getIdentity(cookie: string | null, authorization?: string) {
+  const session = await getAuthenticatedSession(cookie, authorization);
   return session?.user.id ?? null;
 }
 
-export async function hydrateCart(cookie: string | null, input: unknown): Promise<CartActionResult> {
+export async function hydrateCart(
+  cookie: string | null,
+  input: unknown,
+  authorization?: string,
+): Promise<CartActionResult> {
   const parsed = cartLinesSchema.safeParse(input);
   if (!parsed.success) return { items: [], error: "Saved cart data is invalid." };
 
-  const userId = await getIdentity(cookie);
+  const userId = await getIdentity(cookie, authorization);
   if (!userId) {
     try {
       return await loadGuestCart(parsed.data);
@@ -194,11 +198,15 @@ function applyMutation(lines: CartLine[], operation: string, productId?: string,
   };
 }
 
-export async function mutateCart(cookie: string | null, input: unknown): Promise<CartActionResult> {
+export async function mutateCart(
+  cookie: string | null,
+  input: unknown,
+  authorization?: string,
+): Promise<CartActionResult> {
   const parsed = mutationSchema.safeParse(input);
   if (!parsed.success) return { items: [], error: "Cart update was invalid." };
   const mutation = parsed.data;
-  const userId = await getIdentity(cookie);
+  const userId = await getIdentity(cookie, authorization);
 
   if (!userId) {
     if (mutation.operation === "clear") return { items: [], error: null };
@@ -270,8 +278,8 @@ export async function mutateCart(cookie: string | null, input: unknown): Promise
   }
 }
 
-export async function getCart(cookie: string | null) {
-  const userId = await getIdentity(cookie);
+export async function getCart(cookie: string | null, authorization?: string) {
+  const userId = await getIdentity(cookie, authorization);
   if (!userId) return { items: [], error: null } satisfies CartActionResult;
   return loadUserCart(userId);
 }

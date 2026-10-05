@@ -22,4 +22,4 @@ Non-responsibilities:
 - browser-only behavior
 - native/mobile-specific logic
 
-Run backend commands from this directory. Copy `.env.example` to `.env` and configure database, Auth.js, and Mailgun values here. The frontend only needs `NEXT_PUBLIC_BACKEND_URL` and `NEXT_PUBLIC_APP_URL`.
+Run backend commands from this directory. Copy `.env.example` to `.env` and configure database, Auth.js, and Mailgun values here. For native Google sign-in, set `GOOGLE_MOBILE_CLIENT_IDS` to a comma-separated allowlist of the Android and iOS OAuth client IDs configured in `apps/mobile/.env`. The app does not send Google client secrets to the backend exchange endpoint or include them in the mobile bundle. The frontend only needs `NEXT_PUBLIC_BACKEND_URL` and `NEXT_PUBLIC_APP_URL`.

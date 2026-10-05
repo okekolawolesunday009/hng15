@@ -7,9 +7,11 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "ios": {
+      "bundleIdentifier": "com.northstar.mobile",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.northstar.mobile",
       "adaptiveIcon": {
         "backgroundColor": "#FAF8F3"
       }

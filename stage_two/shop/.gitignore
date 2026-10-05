@@ -23,6 +23,7 @@ node_modules/
 # misc
 .DS_Store
 *.pem
+apps/mobile/.expo/
 
 # debug
 npm-debug.log*

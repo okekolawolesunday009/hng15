@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { handleAuthRequest } from "../auth.ts";
+import { getMobileSession } from "./mobile-auth.ts";
 
 export const authSessionSchema = z.object({
   user: z.object({
@@ -16,7 +17,13 @@ export function isAuthenticatedSession(value: unknown): value is AuthSession {
   return authSessionSchema.safeParse(value).success;
 }
 
-export async function getAuthenticatedSession(cookie: string | null): Promise<AuthSession | null> {
+export async function getAuthenticatedSession(
+  cookie: string | null,
+  authorization?: string,
+): Promise<AuthSession | null> {
+  if (authorization?.startsWith("Bearer ")) {
+    return getMobileSession(authorization);
+  }
   if (!cookie) return null;
 
   try {

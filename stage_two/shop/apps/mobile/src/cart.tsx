@@ -15,6 +15,7 @@ import {
   type ReactNode,
 } from "react";
 import { ApiRequestError, hydrateCart, mutateCart } from "./api";
+import { useAuth } from "./auth";
 
 const CART_STORAGE_KEY = "northstar-cart-v1";
 
@@ -61,6 +62,7 @@ function parseSavedLines(value: string | null): CartLine[] {
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { accessToken, isLoading: isAuthLoading } = useAuth();
   const [lines, setLines] = useState<CartLine[]>([]);
   const linesRef = useRef<CartLine[]>([]);
   const [items, setItems] = useState<CartItemSummary[]>([]);
@@ -87,6 +89,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const result = await hydrateCart(linesRef.current);
       setItems(result.items);
       setError(result.error);
+      if (accessToken) {
+        const syncedLines = result.items.map(({ id, quantity }) => ({
+          productId: id,
+          quantity,
+        }));
+        const syncedIds = new Set(syncedLines.map(({ productId }) => productId));
+        const unavailableLines = linesRef.current.filter(({ productId }) => !syncedIds.has(productId));
+        await saveLines([...syncedLines, ...unavailableLines]);
+      }
     } catch (requestError) {
       setError(
         requestError instanceof ApiRequestError
@@ -94,10 +105,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
           : "Unable to sync your cart. Your saved items are still here.",
       );
     }
-  }, []);
+  }, [accessToken, saveLines]);
 
   useEffect(() => {
     let mounted = true;
+    if (isAuthLoading) return () => {
+      mounted = false;
+    };
+    setIsLoading(true);
     void (async () => {
       try {
         const savedLines = parseSavedLines(await AsyncStorage.getItem(CART_STORAGE_KEY));
@@ -109,6 +124,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
           if (mounted) {
             setItems(result.items);
             setError(result.error);
+            if (accessToken) {
+              const hydratedLines = result.items.map(({ id, quantity }) => ({
+                productId: id,
+                quantity,
+              }));
+              const hydratedIds = new Set(hydratedLines.map(({ productId }) => productId));
+              const unavailableLines = savedLines.filter(({ productId }) => !hydratedIds.has(productId));
+              await saveLines([...hydratedLines, ...unavailableLines]);
+            }
           }
         } catch (requestError) {
           if (mounted) {
@@ -130,7 +154,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [accessToken, isAuthLoading, saveLines]);
 
   const update = useCallback(async (
     operation: "add" | "set" | "remove",

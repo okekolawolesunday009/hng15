@@ -7,7 +7,9 @@ import type {
   CartMutationRequest,
   CartItemSummary,
   CheckoutRequest,
+  MobileAuthData,
   ProductSummary,
+  UserSummary,
 } from "@northstar/shared";
 
 export type Category = { id: string; name: string; slug: string };
@@ -35,6 +37,11 @@ const backendUrl = (
 const storefrontUrl = (
   process.env.EXPO_PUBLIC_STOREFRONT_URL ?? `http://${developmentHost}:3000`
 ).replace(/\/+$/, "");
+let mobileAccessToken: string | null = null;
+
+export function setMobileAccessToken(token: string | null) {
+  mobileAccessToken = token;
+}
 
 export function resolveImageUrl(imageUrl: string | null) {
   if (!imageUrl) return null;
@@ -45,7 +52,7 @@ export function resolveImageUrl(imageUrl: string | null) {
   }
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+async function request<T>(path: string, init?: RequestInit, authenticated = true): Promise<T> {
   let response: Response;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 12000);
@@ -56,6 +63,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       signal: controller.signal,
       headers: {
         Accept: "application/json",
+        ...(authenticated && mobileAccessToken
+          ? { Authorization: `Bearer ${mobileAccessToken}` }
+          : {}),
         ...init?.headers,
       },
     });
@@ -92,6 +102,27 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   return (payload as ApiSuccessResponse<T>).data;
+}
+
+export async function exchangeGoogleIdToken(idToken: string) {
+  return request<MobileAuthData>(
+    "/api/v1/auth/mobile/google",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken }),
+    },
+    false,
+  );
+}
+
+export async function getCurrentUser() {
+  const session = await request<{ user: UserSummary; authenticated: true }>("/api/v1/users/me");
+  return session.user;
+}
+
+export async function revokeMobileSession() {
+  await request<{ signedOut: true }>("/api/v1/auth/mobile/logout", { method: "POST" });
 }
 
 export async function getCategories() {
