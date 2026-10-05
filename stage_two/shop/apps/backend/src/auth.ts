@@ -8,12 +8,28 @@ import { accounts, sessions, verificationTokens } from "./db/schema/auth.ts";
 import { users } from "./db/schema/users.ts";
 import { sendWelcomeEmail } from "./services/email.ts";
 
-const storefrontUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+const googleRedirectUri = process.env.GOOGLE_REDIRECT_URI;
+
+function getGoogleRedirectProxyUrl() {
+  if (!googleRedirectUri) return undefined;
+
+  const redirectUri = new URL(googleRedirectUri);
+  const callbackPath = "/api/auth/callback/google";
+  if (redirectUri.pathname !== callbackPath || redirectUri.search || redirectUri.hash) {
+    throw new Error(`GOOGLE_REDIRECT_URI must be an origin plus ${callbackPath}.`);
+  }
+
+  return new URL("/api/auth", redirectUri).toString();
+}
 
 const providers = googleClientId && googleClientSecret
-  ? [Google({ clientId: googleClientId, clientSecret: googleClientSecret })]
+  ? [Google({
+      clientId: googleClientId,
+      clientSecret: googleClientSecret,
+      redirectProxyUrl: getGoogleRedirectProxyUrl(),
+    })]
   : [];
 
 export const authConfig = {
@@ -47,15 +63,15 @@ export const authConfig = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      if (url.startsWith("/")) return new URL(url, storefrontUrl).toString();
+      if (url.startsWith("/")) return new URL(url, baseUrl).toString();
 
       try {
-        if (new URL(url).origin === new URL(storefrontUrl).origin) return url;
+        if (new URL(url).origin === new URL(baseUrl).origin) return url;
       } catch {
-        return storefrontUrl;
+        return baseUrl;
       }
 
-      return storefrontUrl;
+      return baseUrl;
     },
   },
 } satisfies AuthConfig;

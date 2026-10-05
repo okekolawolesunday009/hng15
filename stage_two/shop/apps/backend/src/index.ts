@@ -149,7 +149,16 @@ const server = createServer(async (request, response) => {
 
   if (pathname === "/api/auth" || pathname.startsWith("/api/auth/")) {
     try {
-      const storefrontAuthUrl = new URL(`${url.pathname}${url.search}`, storefrontOrigin);
+      const forwardedHostHeader = request.headers["x-forwarded-host"];
+      const forwardedHost = Array.isArray(forwardedHostHeader)
+        ? forwardedHostHeader[0]
+        : forwardedHostHeader;
+      const forwardedOrigin = forwardedHost ? `${protocol}://${forwardedHost}` : null;
+      const authOrigin = forwardedOrigin
+        && new URL(forwardedOrigin).origin === new URL(storefrontOrigin).origin
+        ? forwardedOrigin
+        : url.origin;
+      const storefrontAuthUrl = new URL(`${url.pathname}${url.search}`, authOrigin);
       const authResponse = await handleAuthRequest(await toWebRequest(request, storefrontAuthUrl));
       await sendWebResponse(response, authResponse);
     } catch (error) {
