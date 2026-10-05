@@ -90,6 +90,13 @@ async function sendWebResponse(
   response.end(Buffer.from(await webResponse.arrayBuffer()));
 }
 
+function getCookieNames(cookieHeader: string | undefined) {
+  return cookieHeader
+    ?.split(";")
+    .map((cookie) => cookie.trim().split("=", 1)[0])
+    .filter(Boolean) ?? [];
+}
+
 function getStatusPayload() {
   return {
     name: "northstar-backend",
@@ -149,8 +156,17 @@ const server = createServer(async (request, response) => {
 
   if (pathname === "/api/auth" || pathname.startsWith("/api/auth/")) {
     try {
+      const requestCookieNames = getCookieNames(
+        typeof request.headers.cookie === "string" ? request.headers.cookie : undefined,
+      );
       const storefrontAuthUrl = new URL(`${url.pathname}${url.search}`, storefrontOrigin);
       const authResponse = await handleAuthRequest(await toWebRequest(request, storefrontAuthUrl));
+      console.info("[auth][cookie-flow]", {
+        method,
+        path: pathname,
+        requestCookies: requestCookieNames,
+        responseCookies: authResponse.headers.getSetCookie().map((cookie) => cookie.split("=", 1)[0]),
+      });
       await sendWebResponse(response, authResponse);
     } catch (error) {
       console.error("Auth request failed:", error instanceof Error ? error.message : "Unknown error");
