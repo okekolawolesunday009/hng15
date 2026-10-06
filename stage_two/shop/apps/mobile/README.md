@@ -56,3 +56,6 @@ emulator or connected device. Production backend URLs must use HTTPS.
   `PAYMENT_UNAVAILABLE`. The app keeps the guest bag and does not claim an
   order or payment succeeded.
 - API failures remain visible and do not delete the saved guest bag.
+cd stage_two/shop/apps/mobile
+npm exec -- expo login
+npm exec -- expo publish

@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Northstar",
-    "slug": "northstar",
-    "scheme": "northstar",
+    "name": "Northstar Mobile",
+    "slug": "NorthstarMobile",
+    "scheme": "Northstar",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",

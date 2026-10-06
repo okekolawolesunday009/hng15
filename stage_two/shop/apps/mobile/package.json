@@ -9,7 +9,8 @@
     "ios": "expo start --ios",
     "ios:native": "expo run:ios",
     "typecheck": "tsc --noEmit",
-    "check": "npm run typecheck"
+    "check": "npm run typecheck",
+    "build:android": "eas build --platform android --profile production"
   },
   "dependencies": {
     "@northstar/shared": "*",
