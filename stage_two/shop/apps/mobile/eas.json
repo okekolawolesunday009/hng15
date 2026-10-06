@@ -3,10 +3,19 @@
     "version": ">= 12.0.0"
   },
   "build": {
-    "developmentClient": false,
-    "distribution": "stores",
+    "developmentClient": {},
+    "distribution": {},
     "android": {
       "buildType": "apk"
+    }
+  },
+  "profiles": {
+    "production": {
+      "distribution": {
+        "android": {
+          "buildType": "apk"
+        }
+      }
     }
   }
 }

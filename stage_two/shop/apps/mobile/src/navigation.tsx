@@ -26,13 +26,14 @@ function MainTabs() {
         tabBarStyle: {
           backgroundColor: colors.background,
           borderTopColor: colors.border,
-          height: 62,
+          height: 68,
+          paddingBottom: 6,
           paddingTop: 6,
         },
         tabBarIcon: ({ color, focused }) => {
           const symbol = route.name === "Shop" ? "S" : route.name === "Cart" ? "B" : "A";
           return (
-            <Text style={{ color, fontSize: focused ? 21 : 19, fontWeight: "600" }}>
+            <Text style={{ color, fontSize: focused ? 22 : 20, fontWeight: "700" }}>
               {symbol}
             </Text>
           );

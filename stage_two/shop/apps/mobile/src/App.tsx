@@ -3,7 +3,6 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider } from "./auth";
 import { CartProvider } from "./cart";
 import { AppNavigation } from "./navigation";
-import { colors } from "./theme";
 
 export default function App() {
   return (
